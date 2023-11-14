@@ -45,6 +45,9 @@ class Ui_Fusion(object):
         self.comboBox_5 = QtWidgets.QComboBox(Fusion)
         self.comboBox_5.setGeometry(QtCore.QRect(280, 300, 90, 24))
         self.comboBox_5.setObjectName("comboBox_5")
+        self.pushButton = QtWidgets.QPushButton(Fusion)
+        self.pushButton.setGeometry(QtCore.QRect(50, 370, 81, 41))
+        self.pushButton.setObjectName("pushButton")
 
         self.retranslateUi(Fusion)
         QtCore.QMetaObject.connectSlotsByName(Fusion)
@@ -57,5 +60,4 @@ class Ui_Fusion(object):
         self.label_3.setText(_translate("Fusion", "分割影像"))
         self.label_4.setText(_translate("Fusion", "输出路径"))
         self.label_5.setText(_translate("Fusion", "预测时相低分辨率影像"))
-
-
+        self.pushButton.setText(_translate("Fusion", "PushButton"))

@@ -1,4 +1,6 @@
 from qgis.core import QgsProject
+
+from OLSTARFM import FusionMethod
 from ui.fusionWindow import Ui_Fusion
 import traceback
 from qgis.core import QgsVectorLayer, QgsRasterLayer, QgsProject, QgsStyle, QgsSymbol, QgsWkbTypes, QgsSymbolLayer, \
@@ -34,7 +36,6 @@ class fusionWindowWidgeter(QWidget, Ui_Fusion):
         self.seg = QgsRasterLayer()  # 分割影像
         self.out = QgsRasterLayer()  # 输出路径
 
-
         self.initUI()
         self.connectFunc()
 
@@ -47,21 +48,20 @@ class fusionWindowWidgeter(QWidget, Ui_Fusion):
 
     def connectFunc(self):
         self.comboBox.currentIndexChanged.connect(self.selectionchange)
+        self.pushButton.clicked.connect(self.pushButtonClicked)
 
     def selectionchange(self):
         print(self.comboBox.currentText())
-        self.L1 = self.layers_list[self.comboBox.currentText()]
+        '''self.L1 = self.layers_list[self.comboBox.currentText()]
         data_file, ext = QFileDialog.getSaveFileName(self, '保存为', '', "GeoTiff(*.tif;*tiff;*TIF;*TIFF)")
-        writeRasterLayer(data_file, self.L1)
+        writeRasterLayer(data_file, self.L1)'''
+
+    def pushButtonClicked(self):
+        fusion = FusionMethod()
+        fusion.fusionAction()
+        del fusion
 
 
-    def actionwriteRasterLayerTriggered(self):
-        data_file, ext = QFileDialog.getSaveFileName(self, '保存为', '', "GeoTiff(*.tif;*tiff;*TIF;*TIFF)")
-        layers = self.layerTreeView.selectedLayers()
-        if len(layers) == 1:
-            layer = layers[0]
-            print(layer.name())
-            writeRasterLayer(data_file, layer)
 '''def closeEvent(self, event):
         # 是否保存数据？？？？
 

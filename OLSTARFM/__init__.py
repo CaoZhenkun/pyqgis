@@ -1,0 +1,1 @@
+from .OLSTARFM import FusionMethod
