@@ -22,12 +22,7 @@ if __name__ == '__main__':
 
 
     # 加载一个项目
-    PROJECT.read('D:/code/test/1.qgz')
-
-    '''tif = r"D:\test.tif"
-    shp = r"D:\ne_50m_land\ne_50m_land.shp"
-    mainWindow.addRasterLayer(tif)
-    mainWindow.addVectorLayer(shp)'''
+    #PROJECT.read('D:/code/test/1.qgz')
 
     app.exec_()
     app.exitQgis()  # 脚本完成后，调用exitQgis（）从内存中删除提供者和图层注册

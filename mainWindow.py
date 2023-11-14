@@ -1,14 +1,18 @@
 from qgis._core import QgsLayerTreeLayer
-from qgis.core import QgsProject, QgsLayerTreeModel,QgsMapLayer,QgsRasterFileWriter
-from qgis.gui import QgsLayerTreeView, QgsMapCanvas, QgsLayerTreeMapCanvasBridge,QgsMapToolZoom,QgsMapToolPan
-from PyQt5.QtCore import QUrl, QSize, QMimeData, QUrl
+from qgis.core import QgsProject, QgsLayerTreeModel, QgsMapLayer, QgsRasterFileWriter
+from qgis.gui import QgsLayerTreeView, QgsMapCanvas, QgsLayerTreeMapCanvasBridge, QgsMapToolZoom, QgsMapToolPan
+from PyQt5.QtCore import QUrl, QSize, QMimeData, QUrl,Qt
 from ui.main import Ui_MainWindow
-from PyQt5.QtWidgets import QMainWindow, QVBoxLayout, QHBoxLayout, QFileDialog, QMessageBox
+from ui.fusionWindow import Ui_Fusion
+from fusionWindowWidget import fusionWindowWidgeter
 
+from PyQt5.QtWidgets import QMainWindow, QVBoxLayout, QHBoxLayout, QFileDialog, QMessageBox, QWidget, QDialog
+from qgis.core import QgsApplication
 
 PROJECT = QgsProject.instance()
 from qgisUtils import addMapLayer, readVectorFile, readRasterFile, menuProvider, writeRasterLayer
-from image import read_img,write_img
+from image import read_img, write_img
+
 
 class MainWindow(QMainWindow, Ui_MainWindow):
     def __init__(self):
@@ -43,7 +47,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         # 7 图层树右键菜单创建
         self.rightMenuProv = menuProvider(self)
         self.layerTreeView.setMenuProvider(self.rightMenuProv)
-        #选中checkable后，Button变成切换按钮(toggle button)
+        # 选中checkable后，Button变成切换按钮(toggle button)
         self.actionZoomIn.setCheckable(True)
         self.actionZoomOut.setCheckable(True)
         self.actionPan.setCheckable(True)
@@ -58,7 +62,6 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         # A 按钮、菜单栏功能
         self.connectFunc()
 
-
     def connectFunc(self):
         self.actionOpenRaster.triggered.connect(self.actionOpenRasterTriggered)
         self.actionOpenShp.triggered.connect(self.actionOpenShpTriggered)
@@ -70,6 +73,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.actionPan.triggered.connect(self.pan)
         self.actionZoomOut.triggered.connect(self.zoomOut)
         self.actionZoomIn.triggered.connect(self.zoomIn)
+        self.actionFusion.triggered.connect(self.actionFusionTriggered)
 
     def dragEnterEvent(self, fileData):
         if fileData.mimeData().hasUrls():
@@ -94,7 +98,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
     def actionOpenRasterTriggered(self):
         data_file, ext = QFileDialog.getOpenFileName(self, '打开栅格', '',
-                                                     'GeoTiff(*.tif;*tiff;*TIF;*TIFF);;ENVI(*.dat)')
+                                                     'GeoTiff(*.tif;*tiff;*TIF;*TIFF);;ENVI(*.dat);;HDR(*.hdr)')
         '''data_file, ext = QFileDialog.getOpenFileName(self, '打开栅格', '',
                                                      'GeoTiff(*.tif;*tiff;*TIF;*TIFF);;All Files(*);;JPEG(*.jpg;*.jpeg;*.JPG;*.JPEG);;*.png;;*.pdf')'''
         if data_file:
@@ -150,22 +154,29 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             layer = layers[0]
             print(layer.name())
             writeRasterLayer(data_file, layer)
-        #writeRasterLayer(data_file, layer)
-
+        # writeRasterLayer(data_file, layer)
 
     # 打印图层名字，有问题
     def printLayers(self):
         layers = PROJECT.mapLayers()
+        l = [layer.name() for layer in QgsProject.instance().mapLayers().values()]
         numOfLayers = len(layers)
-        #print(layers)
-        #print(numOfLayers)
+        print(layers)
+        print(numOfLayers)
         if self.layerTreeView.currentIndex().isValid():
             layers = self.layerTreeView.selectedLayers()
-            if len(layers)>=1:
-                layer=layers[0]
+            if len(layers) >= 1:
+                layer = layers[0]
                 print(layer.name())
             '''for layer in layers:
                 print(layer.name())'''
+        # 使用列表表达式获得图层名称
+        '''l = [layer.name() for layer in layers.values()]
+        # 键值对存储图层名称和图层对象
+        layers_list = {}
+        for l in layers.values():
+            layers_list[l.name()] = l
+        print(layers_list)'''
 
     def pan(self):
         self.mapCanvas.setMapTool(self.toolPan)
@@ -176,6 +187,22 @@ class MainWindow(QMainWindow, Ui_MainWindow):
     def zoomOut(self):
         self.mapCanvas.setMapTool(self.toolZoomOut)
 
+    def actionFusionTriggered(self):
+        print("融合")
+        self.FusionWindow = fusionWindowWidgeter()
+        self.FusionWindow.setWindowModality(Qt.ApplicationModal)  # 设置为模态窗口
+        self.FusionWindow.show()
 
 
 
+    def closeEvent(self, event):
+        # 是否保存数据？？？？
+
+        # 显示关闭确认对话框
+        reply = QMessageBox.question(self, '退出', '确认退出吗？', QMessageBox.Yes | QMessageBox.No, QMessageBox.No)
+        # 根据用户的选择确定是否关闭窗口
+        if reply == QMessageBox.Yes:
+            event.accept()  # 接受关闭事件
+            QgsApplication.quit()  # 终止应用程序的事件循环
+        else:
+            event.ignore()  # 忽略关闭事件

@@ -5,7 +5,7 @@ from qgis.gui import QgsRendererRasterPropertiesWidget, QgsSingleSymbolRendererW
     QgsCategorizedSymbolRendererWidget
 from PyQt5.QtCore import QModelIndex
 from ui.layerPropWindow import Ui_LayerProp
-from PyQt5.QtWidgets import QWidget, QDialog, QListWidgetItem, QTabBar
+from PyQt5.QtWidgets import QWidget, QDialog, QListWidgetItem, QTabBar, QMessageBox
 from qgisUtils import getRasterLayerAttrs, getVectorLayerAttrs
 
 PROJECT = QgsProject.instance()
@@ -120,3 +120,14 @@ class LayerPropWindowWidgeter(QDialog, Ui_LayerProp):
         self.parentWindow.mapCanvas.refresh()
         if needClose:
             self.close()
+
+    '''def closeEvent(self, event):
+        # 是否保存数据？？？？
+
+        # 显示关闭确认对话框
+        reply = QMessageBox.question(self, '退出', '确认退出吗？', QMessageBox.Yes | QMessageBox.No, QMessageBox.No)
+        # 根据用户的选择确定是否关闭窗口
+        if reply == QMessageBox.Yes:
+            event.accept()  # 接受关闭事件
+        else:
+            event.ignore()  # 忽略关闭事件'''

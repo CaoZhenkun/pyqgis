@@ -83,6 +83,7 @@
    <addaction name="actionPan"/>
    <addaction name="actionZoomOut"/>
    <addaction name="actionZoomIn"/>
+   <addaction name="actionFusion"/>
   </widget>
   <action name="actionOpenShp">
    <property name="text">
@@ -130,6 +131,14 @@
   <action name="actionZoomIn">
    <property name="text">
     <string>缩小</string>
+   </property>
+  </action>
+  <action name="actionFusion">
+   <property name="text">
+    <string>高时空分辨率融合</string>
+   </property>
+   <property name="toolTip">
+    <string>高时空分辨率融合</string>
    </property>
   </action>
  </widget>

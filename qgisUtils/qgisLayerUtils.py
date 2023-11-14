@@ -106,10 +106,23 @@ def writeRasterLayer(outputPath, rasterLayer):
 
     # 创建一个QgsRasterFileWriter对象
     file_writer = QgsRasterFileWriter(output_file_path)
-    #file_writer.setOutputFormat("GTiff")  # 设置输出格式，这里使用GeoTIFF
+
+    # 设置输出格式，这里使用GeoTIFF
+    file_writer.setOutputFormat("GTiff")
+
+    #file_writer.setCreateOptions(["TILED=YES"])
+
+    # 可选：设置压缩方式和块大小
+    #file_writer.setCreateOptions(["COMPRESS=LZW", "TILED=YES", "BLOCKXSIZE=256", "BLOCKYSIZE=256"])
+
+
+
     # 写入图层数据
     file_writer.writeRaster(layer.pipe(), layer.width(), layer.height(), layer.extent(), layer.crs())
-    if file_writer.hasError() == QgsRasterFileWriter.NoError:
+
+    del file_writer
+    '''if file_writer.hasError() == QgsRasterFileWriter.NoError:
         print(f"图层已成功保存到 {output_file_path}")
     else:
-        print(f"保存图层时发生错误: {file_writer.errorMsg()}")
+        print(f"保存图层时发生错误: {file_writer.errorMsg()}")'''
+

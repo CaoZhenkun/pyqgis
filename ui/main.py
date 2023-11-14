@@ -65,6 +65,8 @@ class Ui_MainWindow(object):
         self.actionZoomOut.setObjectName("actionZoomOut")
         self.actionZoomIn = QtWidgets.QAction(MainWindow)
         self.actionZoomIn.setObjectName("actionZoomIn")
+        self.actionFusion = QtWidgets.QAction(MainWindow)
+        self.actionFusion.setObjectName("actionFusion")
         self.menu.addAction(self.actionOpenShp)
         self.menu.addAction(self.actionOpenRaster)
         self.menu.addAction(self.actionOpen)
@@ -79,6 +81,7 @@ class Ui_MainWindow(object):
         self.toolBar.addAction(self.actionPan)
         self.toolBar.addAction(self.actionZoomOut)
         self.toolBar.addAction(self.actionZoomIn)
+        self.toolBar.addAction(self.actionFusion)
 
         self.retranslateUi(MainWindow)
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
@@ -100,3 +103,5 @@ class Ui_MainWindow(object):
         self.actionPan.setText(_translate("MainWindow", "平移"))
         self.actionZoomOut.setText(_translate("MainWindow", "放大"))
         self.actionZoomIn.setText(_translate("MainWindow", "缩小"))
+        self.actionFusion.setText(_translate("MainWindow", "高时空分辨率融合"))
+        self.actionFusion.setToolTip(_translate("MainWindow", "高时空分辨率融合"))

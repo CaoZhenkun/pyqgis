@@ -45,8 +45,4 @@ def write_img(filename, im_proj, im_geotrans, im_data):
 
     del dataset
 
-#例子
 
-a=read_img(r"E:\edge_download\NE1_50M_SR_W\NE1_50M_SR_W\NE1_50M_SR_W.tif")
-write_img(r"D:\sdf.tif",a[3],a[4],a[5])
-print(type(a))
