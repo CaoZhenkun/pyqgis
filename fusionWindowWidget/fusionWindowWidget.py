@@ -87,14 +87,12 @@ class fusionWindowWidgeter(QWidget, Ui_Fusion):
             return
 
         data_file, ext = QFileDialog.getSaveFileName(self, '保存为', '', "GeoTiff(*.tif;*tiff;*TIF;*TIFF)")
-        '''if data_file == "":
-            return'''
-        msg_box = QMessageBox()
-        msg_box.setText("执行中...")
-        msg_box.exec_()
-        '''fusion = FusionMethod(self.L1_path, self.M1_path, self.M2_path,self.seg_path)
+        if data_file == "":
+            return
+
+        fusion = FusionMethod(self.L1_path, self.M1_path, self.M2_path,self.seg_path)
         fusion.fusionAction(data_file)
-        del fusion'''
+        del fusion
 
 
 '''def closeEvent(self, event):
