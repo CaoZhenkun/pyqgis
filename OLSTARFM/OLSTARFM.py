@@ -4,8 +4,12 @@ import os
 import cv2
 
 
-class FusionMethod:
-    def __init__(self):
+class FusionMethod():
+    def __init__(self, L1_path, M1_path, M2_path, seg_path):
+        self.seg_path = seg_path
+        self.M2_path = M2_path
+        self.M1_path = M1_path
+        self.L1_path = L1_path
         self.DN_min = 0
         self.DN_max = 10000
         self.snum = None
@@ -20,16 +24,15 @@ class FusionMethod:
         self.bands = None
         self.Factor = 16
 
-        L1_path = 'E:/fiverpaper/HG/L1'  # 基时相高分辨率影像
-        M1_path = 'E:/fiverpaper/HG/M1'  # 基时相低分辨率影像
-        M2_path = 'E:/fiverpaper/HG/M4'  # 预测时相低分辨率影像
-        seg_path = 'E:/fiverpaper/HG/L1235.tif'  # 分割影像
-        self.out_folder = 'E:/fiverpaper/HG/'  # 输出路径
+        '''self.L1_path = 'E:/fiverpaper/HG/L1'  # 基时相高分辨率影像
+        self.M1_path = 'E:/fiverpaper/HG/M1'  # 基时相低分辨率影像
+        self.M1_path = 'E:/fiverpaper/HG/M4'  # 预测时相低分辨率影像'''
+        '''seg_path = 'E:/fiverpaper/HG/L1235.tif'  # 分割影像'''
 
-        self.FRT1 = self.read_img(L1_path)
-        self.CRT1 = self.read_img(M1_path)
-        self.CRT2 = self.read_img(M2_path)
-        self.seg = self.read_img(seg_path)
+        self.FRT1 = self.read_img(self.L1_path)
+        self.CRT1 = self.read_img(self.M1_path)
+        self.CRT2 = self.read_img(self.M2_path)
+        self.seg = self.read_img(self.seg_path)
 
         self.preprocessing()
 
@@ -107,8 +110,7 @@ class FusionMethod:
 
         self.prediction = np.zeros((self.xH, self.yH, self.bands))  # 预测值的副本
 
-
-    def fusionAction(self):
+    def fusionAction(self, data_file):
         # 循环处理每个波段
         for b in range(0, self.bands):
             f1_b = self.FRT1[:, :, b]  # FRT1 的第 b 个波段
@@ -142,4 +144,4 @@ class FusionMethod:
                         prediction[i, j, b] = max(self.DN_min,
                                                   prediction_pos)  # 取DN_min和prediction_pos中的较大值，赋值给prediction中对应位置的元素
 
-        self.save_img(prediction, os.path.join(self.out_folder, "OLSTARFM_py.tif"))
+        self.save_img(prediction, os.path.join(data_file))

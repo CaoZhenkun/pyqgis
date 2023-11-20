@@ -1,7 +1,7 @@
 from qgis._core import QgsLayerTreeLayer
 from qgis.core import QgsProject, QgsLayerTreeModel, QgsMapLayer, QgsRasterFileWriter
 from qgis.gui import QgsLayerTreeView, QgsMapCanvas, QgsLayerTreeMapCanvasBridge, QgsMapToolZoom, QgsMapToolPan
-from PyQt5.QtCore import QUrl, QSize, QMimeData, QUrl,Qt
+from PyQt5.QtCore import QUrl, QSize, QMimeData, QUrl, Qt
 from ui.main import Ui_MainWindow
 from ui.fusionWindow import Ui_Fusion
 from fusionWindowWidget import fusionWindowWidgeter
@@ -149,6 +149,8 @@ class MainWindow(QMainWindow, Ui_MainWindow):
     # 保存栅格
     def actionwriteRasterLayerTriggered(self):
         data_file, ext = QFileDialog.getSaveFileName(self, '保存为', '', "GeoTiff(*.tif;*tiff;*TIF;*TIFF)")
+        if data_file == "":
+            return
         layers = self.layerTreeView.selectedLayers()
         if len(layers) == 1:
             layer = layers[0]
@@ -192,8 +194,6 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.FusionWindow = fusionWindowWidgeter()
         self.FusionWindow.setWindowModality(Qt.ApplicationModal)  # 设置为模态窗口
         self.FusionWindow.show()
-
-
 
     def closeEvent(self, event):
         # 是否保存数据？？？？

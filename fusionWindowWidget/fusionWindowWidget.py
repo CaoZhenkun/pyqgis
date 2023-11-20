@@ -19,6 +19,10 @@ class fusionWindowWidgeter(QWidget, Ui_Fusion):
 
     def __init__(self, parent=None):
         super(fusionWindowWidgeter, self).__init__(parent)
+        self.seg_path = None
+        self.L1_path = None
+        self.M1_path = None
+        self.M2_path = None
         self.parentWindow = parent
         self.setupUi(self)
 
@@ -44,22 +48,53 @@ class fusionWindowWidgeter(QWidget, Ui_Fusion):
         self.comboBox_2.addItems(self.l)
         self.comboBox_3.addItems(self.l)
         self.comboBox_4.addItems(self.l)
-        self.comboBox_5.addItems(self.l)
 
     def connectFunc(self):
-        self.comboBox.currentIndexChanged.connect(self.selectionchange)
+        self.comboBox.currentIndexChanged.connect(self.selectionchange1)
+        self.comboBox_2.currentIndexChanged.connect(self.selectionchange2)
+        self.comboBox_3.currentIndexChanged.connect(self.selectionchange3)
+        self.comboBox_4.currentIndexChanged.connect(self.selectionchange4)
         self.pushButton.clicked.connect(self.pushButtonClicked)
 
-    def selectionchange(self):
+    def selectionchange1(self):
         print(self.comboBox.currentText())
-        '''self.L1 = self.layers_list[self.comboBox.currentText()]
-        data_file, ext = QFileDialog.getSaveFileName(self, '保存为', '', "GeoTiff(*.tif;*tiff;*TIF;*TIFF)")
+        self.L1 = self.layers_list[self.comboBox.currentText()]
+        self.L1_path = self.L1.source()
+        '''data_file, ext = QFileDialog.getSaveFileName(self, '保存为', '', "GeoTiff(*.tif;*tiff;*TIF;*TIFF)")
         writeRasterLayer(data_file, self.L1)'''
 
+    def selectionchange2(self):
+        print(self.comboBox_2.currentText())
+        self.M1 = self.layers_list[self.comboBox_2.currentText()]
+        self.M1_path = self.M1.source()
+
+    def selectionchange3(self):
+        print(self.comboBox_3.currentText())
+        self.M2 = self.layers_list[self.comboBox_3.currentText()]
+        self.M2_path = self.M2.source()
+
+    def selectionchange4(self):
+        print(self.comboBox_4.currentText())
+        self.seg = self.layers_list[self.comboBox_4.currentText()]
+        self.seg_path = self.seg.source()
+
     def pushButtonClicked(self):
-        fusion = FusionMethod()
-        fusion.fusionAction()
-        del fusion
+        a = self.comboBox.currentText()
+        b = self.comboBox_2.currentText()
+        c = self.comboBox_3.currentText()
+        d = self.comboBox_4.currentText()
+        if a == "" or b == "" or c == "" or d == "":
+            return
+
+        data_file, ext = QFileDialog.getSaveFileName(self, '保存为', '', "GeoTiff(*.tif;*tiff;*TIF;*TIFF)")
+        '''if data_file == "":
+            return'''
+        msg_box = QMessageBox()
+        msg_box.setText("执行中...")
+        msg_box.exec_()
+        '''fusion = FusionMethod(self.L1_path, self.M1_path, self.M2_path,self.seg_path)
+        fusion.fusionAction(data_file)
+        del fusion'''
 
 
 '''def closeEvent(self, event):
