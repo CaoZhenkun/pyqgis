@@ -90,7 +90,7 @@ class fusionWindowWidgeter(QWidget, Ui_Fusion):
         if data_file == "":
             return
 
-        fusion = FusionMethod(self.L1_path, self.M1_path, self.M2_path,self.seg_path)
+        fusion = FusionMethod(self.L1_path, self.M1_path, self.M2_path, self.seg_path)
         fusion.fusionAction(data_file)
         del fusion
 

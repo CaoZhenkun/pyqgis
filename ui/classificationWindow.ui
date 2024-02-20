@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>Fusion</class>
- <widget class="QWidget" name="Fusion">
+ <class>classify</class>
+ <widget class="QWidget" name="classify">
   <property name="geometry">
    <rect>
     <x>0</x>
@@ -28,7 +28,7 @@
       <item>
        <widget class="QLabel" name="label">
         <property name="text">
-         <string>基时相高分辨率影像</string>
+         <string>待分类影像</string>
         </property>
        </widget>
       </item>
@@ -51,38 +51,11 @@
      </layout>
     </item>
     <item>
-     <layout class="QHBoxLayout" name="horizontalLayout_4">
-      <item>
-       <widget class="QLabel" name="label_3">
-        <property name="text">
-         <string>分割影像</string>
-        </property>
-       </widget>
-      </item>
-      <item>
-       <spacer name="horizontalSpacer_4">
-        <property name="orientation">
-         <enum>Qt::Horizontal</enum>
-        </property>
-        <property name="sizeHint" stdset="0">
-         <size>
-          <width>40</width>
-          <height>20</height>
-         </size>
-        </property>
-       </spacer>
-      </item>
-      <item>
-       <widget class="QComboBox" name="comboBox_4"/>
-      </item>
-     </layout>
-    </item>
-    <item>
      <layout class="QHBoxLayout" name="horizontalLayout_2">
       <item>
        <widget class="QLabel" name="label_2">
         <property name="text">
-         <string>基时相低分辨率影像</string>
+         <string>分类样本(shp)</string>
         </property>
        </widget>
       </item>
@@ -105,33 +78,6 @@
      </layout>
     </item>
     <item>
-     <layout class="QHBoxLayout" name="horizontalLayout_3">
-      <item>
-       <widget class="QLabel" name="label_5">
-        <property name="text">
-         <string>预测时相低分辨率影像</string>
-        </property>
-       </widget>
-      </item>
-      <item>
-       <spacer name="horizontalSpacer_2">
-        <property name="orientation">
-         <enum>Qt::Horizontal</enum>
-        </property>
-        <property name="sizeHint" stdset="0">
-         <size>
-          <width>40</width>
-          <height>20</height>
-         </size>
-        </property>
-       </spacer>
-      </item>
-      <item>
-       <widget class="QComboBox" name="comboBox_3"/>
-      </item>
-     </layout>
-    </item>
-    <item>
      <layout class="QHBoxLayout" name="horizontalLayout_6">
       <item>
        <spacer name="horizontalSpacer_5">
@@ -149,7 +95,7 @@
       <item>
        <widget class="QPushButton" name="pushButton">
         <property name="text">
-         <string>融合</string>
+         <string>分类</string>
         </property>
        </widget>
       </item>

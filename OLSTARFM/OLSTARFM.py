@@ -61,7 +61,8 @@ class FusionMethod():
             dst = driver.Create(path, array.shape[1], array.shape[0], n_band, 6)
             for b in range(n_band):
                 dst.GetRasterBand(b + 1).WriteArray(array[:, :, b])
-        del dst
+        dst.FlushCache()  # 刷新缓存
+        del dst  # 删除数据集对象
 
     # 对图像进行下采样操作
     def Cubic(self, array):

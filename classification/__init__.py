@@ -1,0 +1,2 @@
+from .RandomForest import RandomForestClassification
+from .TrainByRandomForest import createClassifier

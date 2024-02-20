@@ -5,13 +5,16 @@ from PyQt5.QtCore import QUrl, QSize, QMimeData, QUrl, Qt
 from ui.main import Ui_MainWindow
 from ui.fusionWindow import Ui_Fusion
 from fusionWindowWidget import fusionWindowWidgeter
-
+from cloudWindowWidget import cloudWindowWidgeter
+from classificationWindowWidget import classifyWindowWidgeter
 from PyQt5.QtWidgets import QMainWindow, QVBoxLayout, QHBoxLayout, QFileDialog, QMessageBox, QWidget, QDialog
 from qgis.core import QgsApplication
 
 PROJECT = QgsProject.instance()
 from qgisUtils import addMapLayer, readVectorFile, readRasterFile, menuProvider, writeRasterLayer
 from image import read_img, write_img
+import os
+
 
 
 class MainWindow(QMainWindow, Ui_MainWindow):
@@ -74,6 +77,9 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.actionZoomOut.triggered.connect(self.zoomOut)
         self.actionZoomIn.triggered.connect(self.zoomIn)
         self.actionFusion.triggered.connect(self.actionFusionTriggered)
+        self.actionCloud.triggered.connect(self.actionCloudTriggered)
+        self.actionClassify.triggered.connect(self.actionClassifyTriggered)
+
 
     def dragEnterEvent(self, fileData):
         if fileData.mimeData().hasUrls():
@@ -98,11 +104,32 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
     def actionOpenRasterTriggered(self):
         data_file, ext = QFileDialog.getOpenFileName(self, '打开栅格', '',
-                                                     'GeoTiff(*.tif;*tiff;*TIF;*TIFF);;ENVI(*.dat);;HDR(*.hdr)')
-        '''data_file, ext = QFileDialog.getOpenFileName(self, '打开栅格', '',
-                                                     'GeoTiff(*.tif;*tiff;*TIF;*TIFF);;All Files(*);;JPEG(*.jpg;*.jpeg;*.JPG;*.JPEG);;*.png;;*.pdf')'''
+                                                     'HDR(*.hdr);;GeoTiff(*.tif;*tiff;*TIF;*TIFF);;ENVI(*.dat)')
+
+        '''if data_file:
+            self.addRasterLayer(data_file)'''
         if data_file:
-            self.addRasterLayer(data_file)
+            # 获取文件扩展名
+            _, extension = os.path.splitext(data_file)
+
+            if extension.lower() == '.hdr':
+                # 如果是 HDR 文件，则打开 ENVI 格式的栅格图层
+                self.addENVIRasterLayer(data_file)
+            else:
+                # 否则，使用默认方式打开栅格图层
+                self.addRasterLayer(data_file)
+
+    def addENVIRasterLayer(self, hdr_file):
+        # 获取 ENVI 头文件的路径和文件名（不包含扩展名）
+        hdr_path, hdr_filename = os.path.split(hdr_file)
+        # 移除扩展名，得到数据文件的路径和文件名
+        data_filename, _ = os.path.splitext(hdr_filename)
+        # 组合数据文件的完整路径
+        data_file = os.path.join(hdr_path, data_filename)
+
+        # 添加 ENVI 格式的栅格图层
+        self.addRasterLayer(data_file)
+
 
     # 打开项目
     def actionOpenTriggered(self):
@@ -194,6 +221,16 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.FusionWindow = fusionWindowWidgeter()
         self.FusionWindow.setWindowModality(Qt.ApplicationModal)  # 设置为模态窗口
         self.FusionWindow.show()
+
+    def actionCloudTriggered(self):
+        self.CloudWindow=cloudWindowWidgeter()
+        self.CloudWindow.setWindowModality(Qt.ApplicationModal)  # 设置为模态窗口
+        self.CloudWindow.show()
+
+    def actionClassifyTriggered(self):
+        self.ClassifyWindow=classifyWindowWidgeter()
+        self.ClassifyWindow.setWindowModality(Qt.ApplicationModal)  # 设置为模态窗口
+        self.ClassifyWindow.show()
 
     def closeEvent(self, event):
         # 是否保存数据？？？？

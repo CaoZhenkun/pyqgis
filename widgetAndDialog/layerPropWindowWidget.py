@@ -20,6 +20,7 @@ class LayerPropWindowWidgeter(QDialog, Ui_LayerProp):
         :param parent:
         """
         super(LayerPropWindowWidgeter, self).__init__(parent)
+        self.setMinimumHeight(100)  # 设置一个较小的最小高度
         self.layer = layer
         self.parentWindow = parent
         self.setupUi(self)
@@ -121,7 +122,7 @@ class LayerPropWindowWidgeter(QDialog, Ui_LayerProp):
         if needClose:
             self.close()
 
-    '''def closeEvent(self, event):
+    def closeEvent(self, event):
         # 是否保存数据？？？？
 
         # 显示关闭确认对话框

@@ -33,7 +33,7 @@
      <x>0</x>
      <y>0</y>
      <width>800</width>
-     <height>23</height>
+     <height>22</height>
     </rect>
    </property>
    <widget class="QMenu" name="menu">
@@ -84,6 +84,8 @@
    <addaction name="actionZoomOut"/>
    <addaction name="actionZoomIn"/>
    <addaction name="actionFusion"/>
+   <addaction name="actionCloud"/>
+   <addaction name="actionClassify"/>
   </widget>
   <action name="actionOpenShp">
    <property name="text">
@@ -139,6 +141,16 @@
    </property>
    <property name="toolTip">
     <string>高时空分辨率融合</string>
+   </property>
+  </action>
+  <action name="actionCloud">
+   <property name="text">
+    <string>去云</string>
+   </property>
+  </action>
+  <action name="actionClassify">
+   <property name="text">
+    <string>分类</string>
    </property>
   </action>
  </widget>
