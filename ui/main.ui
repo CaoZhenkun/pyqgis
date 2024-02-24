@@ -48,8 +48,13 @@
    </widget>
    <widget class="QMenu" name="menu_2">
     <property name="title">
-     <string>视图</string>
+     <string>编辑</string>
     </property>
+    <addaction name="actionEditShp"/>
+    <addaction name="actionSelectFeature"/>
+    <addaction name="actionDeleteFeature"/>
+    <addaction name="actionPolygon"/>
+    <addaction name="actionROI"/>
    </widget>
    <widget class="QMenu" name="menu_3">
     <property name="title">
@@ -77,9 +82,6 @@
    <attribute name="toolBarBreak">
     <bool>false</bool>
    </attribute>
-   <addaction name="actionOpenShp"/>
-   <addaction name="actionOpenRaster"/>
-   <addaction name="actionWriteRaster"/>
    <addaction name="actionPan"/>
    <addaction name="actionZoomOut"/>
    <addaction name="actionZoomIn"/>
@@ -151,6 +153,40 @@
   <action name="actionClassify">
    <property name="text">
     <string>分类</string>
+   </property>
+  </action>
+  <action name="actionEditShp">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>编辑矢量</string>
+   </property>
+  </action>
+  <action name="actionSelectFeature">
+   <property name="text">
+    <string>选择要素</string>
+   </property>
+  </action>
+  <action name="actionDeleteFeature">
+   <property name="text">
+    <string>删除选中要素</string>
+   </property>
+  </action>
+  <action name="actionPolygon">
+   <property name="text">
+    <string>绘制面</string>
+   </property>
+   <property name="toolTip">
+    <string>绘制面</string>
+   </property>
+  </action>
+  <action name="actionROI">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>创建ROI</string>
    </property>
   </action>
  </widget>

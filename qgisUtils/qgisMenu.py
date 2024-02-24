@@ -4,9 +4,11 @@ from osgeo import gdal
 import traceback
 from shutil import copyfile
 from PyQt5 import QtWidgets
-from PyQt5.QtCore import Qt
+from PyQt5.QtCore import Qt, QVariant
 from PyQt5.QtGui import QPalette, QColor
 from PyQt5.QtWidgets import QMenu, QAction, QFileDialog, QMessageBox, QTableView, QDialog
+from qgis._core import QgsVectorDataProvider, QgsField, QgsSymbol, QgsPalettedRasterRenderer, QgsRectangle, \
+    QgsSymbolLayerUtils
 from qgis.core import QgsLayerTreeNode, QgsLayerTree, QgsMapLayerType, QgsVectorLayer, QgsProject \
     , QgsVectorFileWriter, QgsWkbTypes, Qgis, QgsFillSymbol, QgsSingleSymbolRenderer, QgsVectorLayerCache \
     , QgsMapLayer, QgsRasterLayer, QgsLayerTreeGroup, QgsLayerTreeLayer
@@ -15,7 +17,13 @@ from qgis.gui import QgsLayerTreeViewMenuProvider, QgsLayerTreeView, QgsLayerTre
     QgsAttributeTableModel, QgsAttributeTableView, QgsAttributeTableFilterModel, QgsGui, QgsAttributeDialog, \
     QgsProjectionSelectionDialog, QgsMultiBandColorRendererWidget
 import traceback
+
+from qgis.utils import iface
+
+from qgisUtils import addMapLayer
+from qgisUtils.yoyiMapTool import PolygonMapTool
 from widgetAndDialog import LayerPropWindowWidgeter
+
 PROJECT = QgsProject.instance()
 
 
@@ -25,7 +33,6 @@ class menuProvider(QgsLayerTreeViewMenuProvider):
         self.layerTreeView: QgsLayerTreeView = mainWindow.layerTreeView
         self.mapCanvas: QgsMapCanvas = mainWindow.mapCanvas
         self.mainWindows = mainWindow
-
 
 
     def createContextMenu(self) -> QtWidgets.QMenu:
@@ -41,7 +48,6 @@ class menuProvider(QgsLayerTreeViewMenuProvider):
                 menu.addAction('展开所有图层', self.layerTreeView.expandAllNodes)
                 menu.addAction('折叠所有图层', self.layerTreeView.collapseAllNodes)
                 return menu
-
 
             if len(self.layerTreeView.selectedLayers()) > 1:
                 # 添加组
@@ -78,33 +84,33 @@ class menuProvider(QgsLayerTreeViewMenuProvider):
                     actionDeleteLayer = QAction("删除图层", menu)
                     actionDeleteLayer.triggered.connect(lambda: self.deleteLayer(layer))
                     menu.addAction(actionDeleteLayer)
+
                 return menu
 
         except:
             print(traceback.format_exc())
 
-    def openLayerPropTriggered(self,layer):
+    def openLayerPropTriggered(self, layer):
         try:
-            self.lp = LayerPropWindowWidgeter(layer,self.mainWindows)
+            self.lp = LayerPropWindowWidgeter(layer, self.mainWindows)
             print(type(self.lp))
             self.lp.show()
         except:
             print(traceback.format_exc())
+
     def updateRasterLayerRenderer(self, widget, layer):
         print("change")
         layer.setRenderer(widget.renderer())
         self.mapCanvas.refresh()
 
-
-
     def deleteSelectedLayer(self):
-        deleteRes = QMessageBox.question(self.mainWindows, '信息', "确定要删除所选图层？", QMessageBox.Yes | QMessageBox.No,
+        deleteRes = QMessageBox.question(self.mainWindows, '信息', "确定要删除所选图层？",
+                                         QMessageBox.Yes | QMessageBox.No,
                                          QMessageBox.No)
         if deleteRes == QMessageBox.Yes:
             layers = self.layerTreeView.selectedLayers()
             for layer in layers:
                 self.deleteLayer(layer)
-
 
     def deleteAllLayer(self):
         if len(PROJECT.mapLayers().values()) == 0:
@@ -117,8 +123,6 @@ class menuProvider(QgsLayerTreeViewMenuProvider):
                 for layer in PROJECT.mapLayers().values():
                     self.deleteLayer(layer)
 
-
-
     def deleteGroup(self, group: QgsLayerTreeGroup):
         deleteRes = QMessageBox.question(self.mainWindows, '信息', "确定要删除组？", QMessageBox.Yes | QMessageBox.No,
                                          QMessageBox.No)
@@ -128,12 +132,11 @@ class menuProvider(QgsLayerTreeViewMenuProvider):
                 self.deleteLayer(layer.layer())
         PROJECT.layerTreeRoot().removeChildNode(group)
 
-
-
     def deleteLayer(self, layer):
         PROJECT.removeMapLayer(layer)
         self.mapCanvas.refresh()
         return 0
+
 
 
     # 写GeoTiff文件
@@ -167,7 +170,3 @@ class menuProvider(QgsLayerTreeViewMenuProvider):
                 dataset.GetRasterBand(i + 1).WriteArray(im_data[i])
 
         del dataset
-
-
-
-

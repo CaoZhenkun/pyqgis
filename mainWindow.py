@@ -1,7 +1,12 @@
-from qgis._core import QgsLayerTreeLayer
+from qgis._core import QgsLayerTreeLayer, QgsVectorLayer, QgsMapLayerType, QgsRasterLayer, QgsVectorDataProvider, \
+    QgsField, QgsVectorFileWriter, QgsGeometry, QgsPointXY, QgsFeature
+from qgis._gui import QgsMapToolIdentifyFeature
 from qgis.core import QgsProject, QgsLayerTreeModel, QgsMapLayer, QgsRasterFileWriter
 from qgis.gui import QgsLayerTreeView, QgsMapCanvas, QgsLayerTreeMapCanvasBridge, QgsMapToolZoom, QgsMapToolPan
-from PyQt5.QtCore import QUrl, QSize, QMimeData, QUrl, Qt
+from PyQt5.QtCore import QUrl, QSize, QMimeData, QUrl, Qt, QVariant
+from qgis.utils import iface
+
+from qgisUtils.yoyiMapTool import PolygonMapTool
 from ui.main import Ui_MainWindow
 from ui.fusionWindow import Ui_Fusion
 from fusionWindowWidget import fusionWindowWidgeter
@@ -14,7 +19,6 @@ PROJECT = QgsProject.instance()
 from qgisUtils import addMapLayer, readVectorFile, readRasterFile, menuProvider, writeRasterLayer
 from image import read_img, write_img
 import os
-
 
 
 class MainWindow(QMainWindow, Ui_MainWindow):
@@ -48,6 +52,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         # 6 允许拖拽文件
         self.setAcceptDrops(True)
         # 7 图层树右键菜单创建
+        # self.editTempLayer: QgsVectorLayer = None  # 设置初始值为 None
         self.rightMenuProv = menuProvider(self)
         self.layerTreeView.setMenuProvider(self.rightMenuProv)
         # 选中checkable后，Button变成切换按钮(toggle button)
@@ -63,6 +68,12 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.toolZoomOut.setAction(self.actionZoomOut)
 
         # A 按钮、菜单栏功能
+        # 矢量编辑
+        # B 初始设置控件
+        self.actionEditShp.setEnabled(False)
+        self.actionROI.setEnabled(False)
+        self.editTempLayer: QgsVectorLayer = None  # 初始编辑图层为None
+        self.ROIeditTempLayer: QgsVectorLayer = None  # 初始编辑图层为None
         self.connectFunc()
 
     def connectFunc(self):
@@ -72,14 +83,156 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.actionSaveAs.triggered.connect(self.actionSaveAsTriggered)
         self.actionOpen.triggered.connect(self.actionOpenTriggered)
         self.actionWriteRaster.triggered.connect(self.actionwriteRasterLayerTriggered)
-        self.layerTreeView.clicked.connect(self.printLayers)
+        # self.layerTreeView.clicked.connect(self.printLayers)
         self.actionPan.triggered.connect(self.pan)
         self.actionZoomOut.triggered.connect(self.zoomOut)
         self.actionZoomIn.triggered.connect(self.zoomIn)
         self.actionFusion.triggered.connect(self.actionFusionTriggered)
         self.actionCloud.triggered.connect(self.actionCloudTriggered)
         self.actionClassify.triggered.connect(self.actionClassifyTriggered)
+        # 单击、双击图层 触发事件
+        self.layerTreeView.clicked.connect(self.layerClicked)
+        # action edit
+        self.actionEditShp.triggered.connect(self.actionEditShpTriggered)
+        self.actionSelectFeature.triggered.connect(self.actionSelectFeatureTriggered)
+        self.actionDeleteFeature.triggered.connect(self.actionDeleteFeatureTriggered)
+        self.actionPolygon.triggered.connect(self.actionPolygonTriggered)
+        self.actionROI.triggered.connect(self.actionCreateROI)
 
+    # action Polygon
+    def actionPolygonTriggered(self):
+        if self.editTempLayer == None:
+            QMessageBox.information(self, '警告', '您没有编辑中矢量')
+            return
+        if self.mapCanvas.mapTool():
+            self.mapCanvas.mapTool().deactivate()
+        self.polygonTool = PolygonMapTool(self.mapCanvas, self.editTempLayer, self)
+        self.mapCanvas.setMapTool(self.polygonTool)
+
+    def layerClicked(self):
+        curLayer: QgsMapLayer = self.layerTreeView.currentLayer()
+        if curLayer and type(curLayer) == QgsVectorLayer and not curLayer.readOnly():
+            self.actionEditShp.setEnabled(True)
+            self.actionROI.setEnabled(False)
+        else:
+            self.actionROI.setEnabled(True)
+            self.actionEditShp.setEnabled(False)
+
+    def actionEditShpTriggered(self):
+        if self.actionEditShp.isChecked():
+            self.editTempLayer: QgsVectorLayer = self.layerTreeView.currentLayer()
+            self.editTempLayer.startEditing()
+        else:
+            saveShpEdit = QMessageBox.question(self, '保存编辑', "确定要将编辑内容保存到内存吗？",
+                                               QMessageBox.Yes | QMessageBox.No, QMessageBox.No)
+            if saveShpEdit == QMessageBox.Yes:
+                self.editTempLayer.commitChanges()
+                print("已经保存")
+            else:
+                self.editTempLayer.rollBack()
+                print("已经返回")
+
+            self.mapCanvas.refresh()
+            self.editTempLayer = None
+
+    def actionCreateROI(self):
+        if self.actionROI.isChecked():
+            # 创建一个消息框
+            msg_box = QMessageBox()
+            msg_box.setIcon(QMessageBox.Information)  # 设置图标为提示
+            msg_box.setText("相同类型id相同")  # 设置消息文本
+            msg_box.setWindowTitle("提示")  # 设置左上角标题为提示
+            msg_box.exec_()      # 显示消息框
+
+            curLayer: QgsMapLayer = self.layerTreeView.currentLayer()
+            crs = curLayer.crs()
+            self.ROIeditTempLayer = QgsVectorLayer("Polygon?crs=" + crs.authid(), "temporary_polygon", "memory")
+            self.ROIeditTempLayer.startEditing()
+            # 获取数据提供者
+            dataProvider = self.ROIeditTempLayer.dataProvider()
+            # 添加字段
+            dataProvider.addAttributes([QgsField("id", QVariant.Int),
+                    QgsField("类型",  QVariant.String)])
+            self.ROIeditTempLayer.updateFields()
+            addMapLayer(self.ROIeditTempLayer, self.mapCanvas)
+
+            # 创建面要素
+            '''polygon_geom = QgsGeometry.fromPolygonXY(
+                [[QgsPointXY(0, 0), QgsPointXY(0, 10), QgsPointXY(10, 10), QgsPointXY(10, 0), QgsPointXY(0, 0)]])
+            feature = QgsFeature()
+            feature.setGeometry(polygon_geom)
+            # 设置属性值
+            feature.setAttributes([1, 2])
+            # 添加要素到图层
+            dataProvider.addFeatures([feature])
+            # 保存图层编辑
+            #self.ROIeditTempLayer.commitChanges()'''
+            #
+            if self.mapCanvas.mapTool():
+                self.mapCanvas.mapTool().deactivate()
+            self.polygonTool = PolygonMapTool(self.mapCanvas, self.ROIeditTempLayer, self)
+            self.mapCanvas.setMapTool(self.polygonTool)
+
+        else:
+            saveShpEdit = QMessageBox.question(self, '保存编辑', "确定要将编辑内容保存吗？",
+                                               QMessageBox.Yes | QMessageBox.No, QMessageBox.No)
+            if saveShpEdit == QMessageBox.Yes:
+                data_file, ext = QFileDialog.getSaveFileName(self, '保存为', '', "Shp(*.shp)")
+                if data_file == "":
+                    self.ROIeditTempLayer.rollBack()
+                    print("取消创建ROI")
+                    return
+                # 设置保存路径和文件名
+                '''output_path = 'C:/Users/czk/Desktop/shp'
+                output_file_name = '123output_file.shp'
+                output_file_path = f'{output_path}/{output_file_name}'''
+                # 调用 writeAsVectorFormat() 保存整个图层
+                error = QgsVectorFileWriter.writeAsVectorFormat(self.ROIeditTempLayer, data_file, "utf-8",
+                                                                self.ROIeditTempLayer.crs(), "ESRI Shapefile")
+                # 处理保存结果
+                if error[0] == QgsVectorFileWriter.NoError:
+                    print("Layer saved successfully")
+            else:
+                self.ROIeditTempLayer.rollBack()
+                print("取消创建ROI")
+
+            self.mapCanvas.refresh()
+            self.editTempLayer = None
+
+    def selectToolIdentified(self, feature):
+        print(feature.id())
+        layerTemp: QgsVectorLayer = self.layerTreeView.currentLayer()
+        if layerTemp.type() == QgsMapLayerType.VectorLayer:
+            if feature.id() in layerTemp.selectedFeatureIds():
+                layerTemp.deselect(feature.id())
+            else:
+                layerTemp.removeSelection()
+                layerTemp.select(feature.id())
+
+    def actionSelectFeatureTriggered(self):
+        # if self.actionSelectFeature.isChecked():
+        if self.actionEditShp.isChecked():
+            if self.mapCanvas.mapTool():
+                self.mapCanvas.unsetMapTool(self.mapCanvas.mapTool())
+            self.selectTool = QgsMapToolIdentifyFeature(self.mapCanvas)
+            self.selectTool.setCursor(Qt.ArrowCursor)
+            self.selectTool.featureIdentified.connect(self.selectToolIdentified)
+            layers = self.mapCanvas.layers()
+            if layers:
+                self.selectTool.setLayer(self.layerTreeView.currentLayer())
+            self.mapCanvas.setMapTool(self.selectTool)
+        else:
+            if self.mapCanvas.mapTool():
+                self.mapCanvas.unsetMapTool(self.mapCanvas.mapTool())
+
+    def actionDeleteFeatureTriggered(self):
+        if self.editTempLayer == None:
+            QMessageBox.information(self, '警告', '您没有编辑中矢量')
+            return
+        if len(self.editTempLayer.selectedFeatureIds()) == 0:
+            QMessageBox.information(self, '删除选中矢量', '您没有选择任何矢量')
+        else:
+            self.editTempLayer.deleteSelectedFeatures()
 
     def dragEnterEvent(self, fileData):
         if fileData.mimeData().hasUrls():
@@ -129,7 +282,6 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
         # 添加 ENVI 格式的栅格图层
         self.addRasterLayer(data_file)
-
 
     # 打开项目
     def actionOpenTriggered(self):
@@ -223,12 +375,12 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.FusionWindow.show()
 
     def actionCloudTriggered(self):
-        self.CloudWindow=cloudWindowWidgeter()
+        self.CloudWindow = cloudWindowWidgeter()
         self.CloudWindow.setWindowModality(Qt.ApplicationModal)  # 设置为模态窗口
         self.CloudWindow.show()
 
     def actionClassifyTriggered(self):
-        self.ClassifyWindow=classifyWindowWidgeter()
+        self.ClassifyWindow = classifyWindowWidgeter()
         self.ClassifyWindow.setWindowModality(Qt.ApplicationModal)  # 设置为模态窗口
         self.ClassifyWindow.show()
 
