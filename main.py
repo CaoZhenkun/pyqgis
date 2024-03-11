@@ -8,8 +8,8 @@ from mainWindow import MainWindow, PROJECT
 
 if __name__ == '__main__':
     gdal.DontUseExceptions()
-    QgsApplication.setPrefixPath('D:/Program Files/QGIS 3.30.2/apps/qgis', True)  # 提供qgis安装位置的路径
-    #QgsApplication.setAttribute(Qt.AA_EnableHighDpiScaling)  # 适应高分辨率
+    QgsApplication.setPrefixPath('D:/Program Files/QGIS 3.28.14/apps/qgis-ltr', True)  # 提供qgis安装位置的路径
+    QgsApplication.setAttribute(Qt.AA_EnableHighDpiScaling)  # 适应高分辨率
     app = QgsApplication([], True)  # 创建对QgsApplication的引用，第二个参数设置为False将禁用GUI
 
     t = QtCore.QTranslator()
@@ -17,7 +17,6 @@ if __name__ == '__main__':
     app.installTranslator(t)
 
     app.initQgis()  # 加载提供者
-
     mainWindow = MainWindow()
     mainWindow.show()
 

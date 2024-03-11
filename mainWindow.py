@@ -4,22 +4,17 @@ from qgis._gui import QgsMapToolIdentifyFeature
 from qgis.core import QgsProject, QgsLayerTreeModel, QgsMapLayer, QgsRasterFileWriter
 from qgis.gui import QgsLayerTreeView, QgsMapCanvas, QgsLayerTreeMapCanvasBridge, QgsMapToolZoom, QgsMapToolPan
 from PyQt5.QtCore import QUrl, QSize, QMimeData, QUrl, Qt, QVariant
-from qgis.utils import iface
-
 from qgisUtils.yoyiMapTool import PolygonMapTool
 from ui.main import Ui_MainWindow
-from ui.fusionWindow import Ui_Fusion
 from fusionWindowWidget import fusionWindowWidgeter
 from cloudWindowWidget import cloudWindowWidgeter
 from classificationWindowWidget import classifyWindowWidgeter
 from PyQt5.QtWidgets import QMainWindow, QVBoxLayout, QHBoxLayout, QFileDialog, QMessageBox, QWidget, QDialog
 from qgis.core import QgsApplication
-
-PROJECT = QgsProject.instance()
 from qgisUtils import addMapLayer, readVectorFile, readRasterFile, menuProvider, writeRasterLayer
-from image import read_img, write_img
 import os
-
+from swipe import Swipe
+PROJECT = QgsProject.instance()
 
 class MainWindow(QMainWindow, Ui_MainWindow):
     def __init__(self):
@@ -75,6 +70,9 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.editTempLayer: QgsVectorLayer = None  # 初始编辑图层为None
         self.ROIeditTempLayer: QgsVectorLayer = None  # 初始编辑图层为None
         self.connectFunc()
+        #卷帘工具Swipe
+        self.swipeTool=Swipe(self.mapCanvas,self.toolBar)
+
 
     def connectFunc(self):
         self.actionOpenRaster.triggered.connect(self.actionOpenRasterTriggered)
