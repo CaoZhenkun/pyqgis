@@ -22,8 +22,7 @@ from qgis.utils import iface
 
 from qgisUtils import addMapLayer
 from qgisUtils.yoyiMapTool import PolygonMapTool
-from widgetAndDialog import LayerPropWindowWidgeter
-
+from widgetAndDialog import LayerPropWindowWidgeter,AttributeDialog
 PROJECT = QgsProject.instance()
 
 
@@ -70,12 +69,18 @@ class menuProvider(QgsLayerTreeViewMenuProvider):
                     actionDeleteGroup.triggered.connect(lambda: self.deleteGroup(group))
                     menu.addAction(actionDeleteGroup)
                 elif QgsLayerTree.isLayer(node):
-                    self.actionMoveToTop = self.actions.actionMoveToTop(menu)
+                    '''self.actionMoveToTop = self.actions.actionMoveToTop(menu)
                     menu.addAction(self.actionMoveToTop)
                     self.actionZoomToLayer = self.actions.actionZoomToLayer(self.mapCanvas, menu)
-                    menu.addAction(self.actionZoomToLayer)
+                    menu.addAction(self.actionZoomToLayer)'''
 
                     layer: QgsMapLayer = self.layerTreeView.currentLayer()
+
+                    if layer.type() == QgsMapLayerType.VectorLayer:
+                        actionOpenAttributeDialog = QAction('打开属性表', menu)
+                        actionOpenAttributeDialog.triggered.connect(lambda: self.openAttributeDialog(layer))
+                        menu.addAction(actionOpenAttributeDialog)
+
 
                     actionOpenLayerProp = QAction('图层属性', menu)
                     actionOpenLayerProp.triggered.connect(lambda: self.openLayerPropTriggered(layer))
@@ -90,6 +95,10 @@ class menuProvider(QgsLayerTreeViewMenuProvider):
         except:
             print(traceback.format_exc())
 
+
+    def openAttributeDialog(self,layer):
+        ad = AttributeDialog(self.mainWindows, layer)
+        ad.show()
     def openLayerPropTriggered(self, layer):
         try:
             self.lp = LayerPropWindowWidgeter(layer, self.mainWindows)

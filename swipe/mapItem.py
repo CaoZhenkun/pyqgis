@@ -1,7 +1,3 @@
-# -*- coding: utf-8 -*-
-# @Author  : llc
-# @Time    : 2020/3/10 14:59
-
 from qgis.PyQt.QtCore import QRectF, Qt, QLineF
 from qgis.PyQt.QtGui import QPen, QColor
 from qgis.gui import QgsMapCanvasItem

@@ -1,5 +1,7 @@
+import traceback
+
 from qgis._core import QgsLayerTreeLayer, QgsVectorLayer, QgsMapLayerType, QgsRasterLayer, QgsVectorDataProvider, \
-    QgsField, QgsVectorFileWriter, QgsGeometry, QgsPointXY, QgsFeature
+    QgsField, QgsVectorFileWriter, QgsGeometry, QgsPointXY, QgsFeature, QgsCoordinateReferenceSystem, QgsMapSettings
 from qgis._gui import QgsMapToolIdentifyFeature
 from qgis.core import QgsProject, QgsLayerTreeModel, QgsMapLayer, QgsRasterFileWriter
 from qgis.gui import QgsLayerTreeView, QgsMapCanvas, QgsLayerTreeMapCanvasBridge, QgsMapToolZoom, QgsMapToolPan
@@ -9,7 +11,8 @@ from ui.main import Ui_MainWindow
 from fusionWindowWidget import fusionWindowWidgeter
 from cloudWindowWidget import cloudWindowWidgeter
 from classificationWindowWidget import classifyWindowWidgeter
-from PyQt5.QtWidgets import QMainWindow, QVBoxLayout, QHBoxLayout, QFileDialog, QMessageBox, QWidget, QDialog
+from PyQt5.QtWidgets import QMainWindow, QVBoxLayout, QHBoxLayout, QFileDialog, QMessageBox, QWidget, QDialog, \
+    QStatusBar, QLabel, QComboBox
 from qgis.core import QgsApplication
 from qgisUtils import addMapLayer, readVectorFile, readRasterFile, menuProvider, writeRasterLayer
 import os
@@ -69,10 +72,33 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.actionROI.setEnabled(False)
         self.editTempLayer: QgsVectorLayer = None  # 初始编辑图层为None
         self.ROIeditTempLayer: QgsVectorLayer = None  # 初始编辑图层为None
-        self.connectFunc()
-        #卷帘工具Swipe
-        self.swipeTool=Swipe(self.mapCanvas,self.toolBar)
 
+
+
+        # 8.0 提前给予基本CRS
+        self.mapCanvas.setDestinationCrs(QgsCoordinateReferenceSystem("EPSG:4326"))
+        # 8 状态栏控件
+        self.statusBar = QStatusBar()
+        self.statusBar.setStyleSheet('color: black; border: none')
+        self.statusXY = QLabel('{:<40}'.format(''))  # x y 坐标状态
+        self.statusBar.addWidget(self.statusXY, 1)
+        self.statusScaleLabel = QLabel('比例尺')
+        self.statusScaleComboBox = QComboBox(self)
+        self.statusScaleComboBox.setFixedWidth(120)
+        self.statusScaleComboBox.addItems(
+            ["1:500", "1:1000", "1:2500", "1:5000", "1:10000", "1:25000", "1:100000", "1:500000", "1:1000000"])
+        self.statusScaleComboBox.setEditable(True)
+        self.statusBar.addWidget(self.statusScaleLabel)
+        self.statusBar.addWidget(self.statusScaleComboBox)
+        self.statusCrsLabel = QLabel(
+            f"坐标系: {self.mapCanvas.mapSettings().destinationCrs().description()}-{self.mapCanvas.mapSettings().destinationCrs().authid()}")
+        self.statusBar.addWidget(self.statusCrsLabel)
+        self.setStatusBar(self.statusBar)
+
+        self.connectFunc()
+
+        # 卷帘工具Swipe
+        self.swipeTool = Swipe(self.mapCanvas, self.toolBar)
 
     def connectFunc(self):
         self.actionOpenRaster.triggered.connect(self.actionOpenRasterTriggered)
@@ -96,6 +122,33 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.actionDeleteFeature.triggered.connect(self.actionDeleteFeatureTriggered)
         self.actionPolygon.triggered.connect(self.actionPolygonTriggered)
         self.actionROI.triggered.connect(self.actionCreateROI)
+        #当mapCanvas的坐标系统变化的时候，会自动触发改变状态栏的逻辑
+        self.mapCanvas.destinationCrsChanged.connect(self.showCrs)
+        #需要设置当mapCanvas坐标改变时，让状态栏动态刷新
+        self.mapCanvas.xyCoordinates.connect(self.showXY)
+        #地图画布比例尺改变的时候让statusScaleComboBox动态刷新
+        self.mapCanvas.scaleChanged.connect(self.showScale)
+        #当用户手动输入比例尺的情况，地图画布能够匹配上这个比例尺
+        self.statusScaleComboBox.editTextChanged.connect(self.changeScaleForString)
+
+    def changeScaleForString(self, str):
+        try:
+            left, right = str.split(":")[0], str.split(":")[-1]
+            if int(left) == 1 and int(right) > 0 and int(right) != int(self.mapCanvas.scale()):
+                self.mapCanvas.zoomScale(int(right))
+                self.mapCanvas.zoomWithCenter()
+        except:
+            print(traceback.format_stack())
+    def showScale(self, scale):
+        self.statusScaleComboBox.setEditText(f"1:{int(scale)}")
+    def showXY(self, point):
+        x = point.x()
+        y = point.y()
+        self.statusXY.setText(f'{x:.6f}, {y:.6f}')
+    def showCrs(self):
+        mapSetting: QgsMapSettings = self.mapCanvas.mapSettings()
+        self.statusCrsLabel.setText(
+            f"坐标系: {mapSetting.destinationCrs().description()}-{mapSetting.destinationCrs().authid()}")
 
     # action Polygon
     def actionPolygonTriggered(self):
