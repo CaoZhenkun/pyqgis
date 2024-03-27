@@ -6,29 +6,44 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>708</width>
-    <height>632</height>
+    <width>300</width>
+    <height>400</height>
    </rect>
   </property>
+  <property name="minimumSize">
+   <size>
+    <width>300</width>
+    <height>400</height>
+   </size>
+  </property>
+  <property name="maximumSize">
+   <size>
+    <width>300</width>
+    <height>400</height>
+   </size>
+  </property>
   <property name="windowTitle">
-   <string>Fusion</string>
+   <string>融合</string>
   </property>
   <widget class="QWidget" name="verticalLayoutWidget">
    <property name="geometry">
     <rect>
-     <x>160</x>
-     <y>90</y>
-     <width>361</width>
+     <x>30</x>
+     <y>30</y>
+     <width>241</width>
      <height>361</height>
     </rect>
    </property>
    <layout class="QVBoxLayout" name="verticalLayout">
+    <property name="leftMargin">
+     <number>0</number>
+    </property>
     <item>
      <layout class="QHBoxLayout" name="horizontalLayout">
       <item>
        <widget class="QLabel" name="label">
         <property name="text">
-         <string>基时相高分辨率影像</string>
+         <string>基时相高分辨率影像 </string>
         </property>
        </widget>
       </item>

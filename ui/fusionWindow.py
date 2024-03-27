@@ -14,9 +14,11 @@ from PyQt5 import QtCore, QtGui, QtWidgets
 class Ui_Fusion(object):
     def setupUi(self, Fusion):
         Fusion.setObjectName("Fusion")
-        Fusion.resize(708, 632)
+        Fusion.resize(300, 400)
+        Fusion.setMinimumSize(QtCore.QSize(300, 400))
+        Fusion.setMaximumSize(QtCore.QSize(300, 400))
         self.verticalLayoutWidget = QtWidgets.QWidget(Fusion)
-        self.verticalLayoutWidget.setGeometry(QtCore.QRect(160, 90, 361, 361))
+        self.verticalLayoutWidget.setGeometry(QtCore.QRect(30, 30, 241, 361))
         self.verticalLayoutWidget.setObjectName("verticalLayoutWidget")
         self.verticalLayout = QtWidgets.QVBoxLayout(self.verticalLayoutWidget)
         self.verticalLayout.setContentsMargins(0, 0, 0, 0)
@@ -81,8 +83,8 @@ class Ui_Fusion(object):
 
     def retranslateUi(self, Fusion):
         _translate = QtCore.QCoreApplication.translate
-        Fusion.setWindowTitle(_translate("Fusion", "Fusion"))
-        self.label.setText(_translate("Fusion", "基时相高分辨率影像"))
+        Fusion.setWindowTitle(_translate("Fusion", "融合"))
+        self.label.setText(_translate("Fusion", "基时相高分辨率影像 "))
         self.label_3.setText(_translate("Fusion", "分割影像"))
         self.label_2.setText(_translate("Fusion", "基时相低分辨率影像"))
         self.label_5.setText(_translate("Fusion", "预测时相低分辨率影像"))

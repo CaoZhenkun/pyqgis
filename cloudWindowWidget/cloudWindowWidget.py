@@ -42,15 +42,16 @@ class cloudWindowWidgeter(QWidget, Ui_Cloud):
     def pushButtonClicked(self):
         self.data_file1, ext = QFileDialog.getOpenFileName(self, '打开参数设置', '',
                                                            "YAML(*.yaml)")
-
+        self.label_5.setText(self.data_file1)
+        self.label_5.setText(self.data_file1)
     def pushButton_2Clicked(self):
         self.data_file2, ext = QFileDialog.getOpenFileName(self, '打开时序影像', '',
                                                            'GeoTiff(*.tif;*tiff;*TIF;*TIFF);;ENVI(*.dat);;HDR(*.hdr)')
-
+        self.label_8.setText(self.data_file2)
     def pushButton_3Clicked(self):
         self.data_file3, ext = QFileDialog.getOpenFileName(self, '打开掩膜', '',
                                                            'GeoTiff(*.tif;*tiff;*TIF;*TIFF);;ENVI(*.dat);;HDR(*.hdr)')
-
+        self.label_6.setText(self.data_file3)
     def pushButton_4Clicked(self):
         #self.data_file4, ext = QFileDialog.getSaveFileName(self, '保存路径', '', "GeoTiff(*.tif;*tiff;*TIF;*TIFF)")
         self.data_file4 = QFileDialog.getExistingDirectory(self)

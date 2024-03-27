@@ -14,9 +14,11 @@ from PyQt5 import QtCore, QtGui, QtWidgets
 class Ui_classify(object):
     def setupUi(self, classify):
         classify.setObjectName("classify")
-        classify.resize(708, 632)
+        classify.resize(300, 200)
+        classify.setMinimumSize(QtCore.QSize(300, 200))
+        classify.setMaximumSize(QtCore.QSize(300, 200))
         self.verticalLayoutWidget = QtWidgets.QWidget(classify)
-        self.verticalLayoutWidget.setGeometry(QtCore.QRect(160, 90, 361, 361))
+        self.verticalLayoutWidget.setGeometry(QtCore.QRect(20, 10, 261, 191))
         self.verticalLayoutWidget.setObjectName("verticalLayoutWidget")
         self.verticalLayout = QtWidgets.QVBoxLayout(self.verticalLayoutWidget)
         self.verticalLayout.setContentsMargins(0, 0, 0, 0)
@@ -59,7 +61,7 @@ class Ui_classify(object):
 
     def retranslateUi(self, classify):
         _translate = QtCore.QCoreApplication.translate
-        classify.setWindowTitle(_translate("classify", "Fusion"))
+        classify.setWindowTitle(_translate("classify", "分类"))
         self.label.setText(_translate("classify", "待分类影像"))
         self.label_2.setText(_translate("classify", "分类样本(shp)"))
         self.pushButton.setText(_translate("classify", "分类"))
